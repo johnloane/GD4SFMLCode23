@@ -1,19 +1,21 @@
 #include "Game.hpp"
+#include <iostream>
 
 const float Game::kPlayerSpeed = 100.f;
 const sf::Time Game::kTimePerFrame = sf::seconds(1.f / 60.f);
 
-Game::Game()
+Game::Game(ResourceHolder<sf::Texture, Texture>& game_textures)
 	: m_window(sf::VideoMode(640, 480), "Getting started")
-	, m_player(), m_is_moving_up(false), m_is_moving_down(false), m_is_moving_left(false), m_is_moving_right(false)
+	, m_textures(game_textures), m_texture(), m_player(), m_is_moving_up(false), m_is_moving_down(false), m_is_moving_left(false), m_is_moving_right(false)
 {
-	m_player.setRadius(40.f);
+	
+	m_player.setTexture(m_textures.Get(Texture::kAircraft));
 	m_player.setPosition(100.f, 100.f);
-	m_player.setFillColor(sf::Color::Cyan);
 }
 
 void Game::Run()
 {
+	std::cout << sf::Texture::getMaximumSize() << std::endl;
 	sf::Clock clock;
 	sf::Time time_since_last_update = sf::Time::Zero;
 	while (m_window.isOpen())

@@ -132,9 +132,16 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TextureHolder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.hpp" />
+    <ClInclude Include="ResourceHolder.hpp" />
+    <ClInclude Include="Texture.hpp" />
+    <ClInclude Include="TextureHolder.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ResourceHolder.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
