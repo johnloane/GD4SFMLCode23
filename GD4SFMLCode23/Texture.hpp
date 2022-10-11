@@ -1,6 +1,7 @@
 enum class Texture
 {
 	kLandscape,
-	kAircraft,
+	kEagle,
+	kRaptor,
 	kMissile
 };
