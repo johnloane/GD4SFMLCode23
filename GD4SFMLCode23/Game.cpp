@@ -1,16 +1,12 @@
 #include "Game.hpp"
 #include <iostream>
 
-const float Game::kPlayerSpeed = 100.f;
 const sf::Time Game::kTimePerFrame = sf::seconds(1.f / 60.f);
 
-Game::Game(ResourceHolder<sf::Texture, Texture>& game_textures)
-	: m_window(sf::VideoMode(640, 480), "Getting started")
-	, m_textures(game_textures), m_texture(), m_player(), m_is_moving_up(false), m_is_moving_down(false), m_is_moving_left(false), m_is_moving_right(false)
+Game::Game()
+	: m_world(m_window)
+	, m_window(sf::VideoMode(640, 480), "Getting started")
 {
-	
-	m_player.setTexture(m_textures.Get(Texture::kAircraft));
-	m_player.setPosition(100.f, 100.f);
 }
 
 void Game::Run()
