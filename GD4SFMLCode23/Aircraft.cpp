@@ -1,5 +1,6 @@
 #include "Aircraft.hpp"
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/RenderStates.hpp>
 #include "ResourceHolder.hpp"
 #include "Texture.hpp"
 

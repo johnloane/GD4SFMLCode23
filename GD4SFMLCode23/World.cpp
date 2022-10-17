@@ -1,5 +1,6 @@
 #include "World.hpp"
 
+
 World::World(sf::RenderWindow& window)
 	:m_window(window)
 	,m_camera(window.getDefaultView())
@@ -25,7 +26,7 @@ void World::Update(sf::Time dt)
 	sf::Vector2f velocity = m_player_aircraft->GetVelocity();
 
 	//If the player touches the x-boundaries flip their x-velocity
-	if (position.x < m_world_bounds.left + 150.f || position.x > m_world_bounds.left + m_world_bounds.width - 150.f)
+	if (position.x <= m_world_bounds.left + 150.f || position.x >= m_world_bounds.left + m_world_bounds.width - 150.f)
 	{
 		velocity.x = -velocity.x;
 		m_player_aircraft->SetVelocity(velocity);

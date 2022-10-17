@@ -13,7 +13,7 @@ void SceneNode::AttachChild(Ptr child)
     m_children.emplace_back(std::move(child));
 }
 
-Ptr SceneNode::DetachChild(const SceneNode& node)
+SceneNode::Ptr SceneNode::DetachChild(const SceneNode& node)
 {
     auto found = std::find_if(m_children.begin(), m_children.end(), [&](Ptr& p) {return p.get() == &node; });
     assert(found != m_children.end());
@@ -64,6 +64,9 @@ void SceneNode::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     //Apply the transform of the current node
     states.transform *= getTransform();
+    //Draw the node and children with changed transform
+    DrawCurrent(target, states);
+    DrawChildren(target, states);
 }
 
 void SceneNode::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const

@@ -1,20 +1,25 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-#include "ResourceHolder.hpp"
-#include "Texture.hpp"
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/System/Time.hpp>
 #include "World.hpp"
 
-class Game
+class Game : private sf::NonCopyable
 {
 public:
 	Game();
 	void Run();
 
+private:
+	void ProcessEvents();
+	void Update(sf::Time elapsed_time);
+	void Render();
+
 
 private:
-	World m_world;
-	sf::RenderWindow m_window;
 	static const sf::Time kTimePerFrame;
+	//The order of things is essential here. If you declare the world before the window, world will get constructed before a RenderWindow has been constructed and your world will be trying to use a window which hasn't been constrcuted yet and hence your worlds window, camera and spawnposition will be a mess
+	sf::RenderWindow m_window;
+	World m_world;
 
 };
 

@@ -6,16 +6,15 @@
 #include "Aircraft.hpp"
 #include "Layers.hpp"
 
-#include "SFML/System/NonCopyable.hpp"
-#include "SFML/Graphics/View.hpp"
-#include "SFML/Graphics/Texture.hpp"
+#include <SFML/System/NonCopyable.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+
 
 #include <array>
 
-namespace sf
-{
-	class RenderWindow;
-}
+
 
 class World : private sf::NonCopyable
 {
