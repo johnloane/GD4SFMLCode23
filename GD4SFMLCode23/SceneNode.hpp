@@ -7,6 +7,9 @@
 #include <memory>
 #include <vector>
 
+class Command;
+
+
 class SceneNode : public sf::Transformable, public sf::Drawable, private sf::NonCopyable
 {
 public:
@@ -22,6 +25,8 @@ public:
 	sf::Vector2f GetWorldPosition() const;
 	sf::Transform GetWorldTransform() const;
 
+	void OnCommand(const Command& command, sf::Time dt);
+
 private:
 	virtual void UpdateCurrent(sf::Time dt);
 	void UpdateChildren(sf::Time dt);
@@ -31,6 +36,8 @@ private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 	virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 	void DrawChildren(sf::RenderTarget& target, sf::RenderStates states) const;
+	virtual unsigned int GetCategory() const;
+	
 
 private:
 	std::vector<Ptr> m_children;

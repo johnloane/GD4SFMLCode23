@@ -1,4 +1,6 @@
 #include "SceneNode.hpp"
+#include "ReceiverCategories.hpp"
+#include "Command.hpp"
 #include <cassert>
 #include <memory>
 
@@ -79,5 +81,25 @@ void SceneNode::DrawChildren(sf::RenderTarget& target, sf::RenderStates states) 
     for (const Ptr& child : m_children)
     {
         child->draw(target, states);
+    }
+}
+
+unsigned int SceneNode::GetCategory() const
+{
+    return static_cast<unsigned int>(ReceiverCategories::kScene);
+}
+
+void SceneNode::OnCommand(const Command& command, sf::Time dt)
+{
+    //Is this command for me. If it is execute. Regardless of the answer forward it on to all of my children
+    if (command.category & GetCategory())
+    {
+        command.action(*this, dt);
+    }
+
+    //Pass it on to the children
+    for (Ptr& child : m_children)
+    {
+        child->OnCommand(command, dt);
     }
 }
