@@ -23,6 +23,7 @@ public:
 	explicit World(sf::RenderWindow& window);
 	void Update(sf::Time dt);
 	void Draw();
+	CommandQueue& GetCommandQueue();
 
 private:
 	void LoadTextures();
