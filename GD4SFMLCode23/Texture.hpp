@@ -4,5 +4,6 @@ enum class Texture
 	kDesert,
 	kEagle,
 	kRaptor,
-	kMissile
+	kMissile,
+	kTitleScreen
 };

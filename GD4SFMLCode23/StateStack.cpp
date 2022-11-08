@@ -84,3 +84,10 @@ void StateStack::ApplyPendingChanges()
     }
     m_pending_list.clear();
 }
+
+StateStack::PendingChange::PendingChange(StackAction action, StateID stateID)
+    : action(action)
+    , state_id(stateID)
+{
+
+}

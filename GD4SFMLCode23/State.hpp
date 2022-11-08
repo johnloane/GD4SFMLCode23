@@ -1,7 +1,6 @@
 #pragma once
 #include "StateID.hpp"
 #include "ResourceIdentifiers.hpp"
-#include "StateStack.hpp"
 
 #include <SFML/System/Time.hpp>
 #include <SFML/Window/Event.hpp>
@@ -11,6 +10,7 @@ namespace sf
 	class RenderWindow;
 }
 class Player;
+class StateStack;
 
 #include <memory>
 

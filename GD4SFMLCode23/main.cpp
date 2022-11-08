@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include "Game.hpp"
+#include "Application.hpp"
 #include "ResourceHolder.hpp"
 #include <iostream>
 #include <stdexcept>
@@ -8,8 +8,8 @@ int main()
 {
 	try
 	{
-		Game game;
-		game.Run();
+		Application app;
+		app.Run();
 	}
 	catch (std::runtime_error& e)
 	{

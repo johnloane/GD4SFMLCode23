@@ -9,7 +9,7 @@ MenuState::MenuState(StateStack& stack, Context context)
     , m_option_index(0)
 {
     sf::Texture& texture = context.textures->Get(Texture::kTitleScreen);
-    sf::Font& font = context.fonts->Get(Font::Main);
+    sf::Font& font = context.fonts->Get(Font::kMain);
 
     m_background_sprite.setTexture(texture);
 
@@ -42,7 +42,7 @@ void MenuState::Draw()
     }
 }
 
-bool MenuState::Update()
+bool MenuState::Update(sf::Time dt)
 {
     return true;
 }

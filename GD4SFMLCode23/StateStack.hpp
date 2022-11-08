@@ -55,7 +55,7 @@ void StateStack::RegisterState(StateID state_id)
 {
 	m_state_factory[state_id] = [this]()
 	{
-		return State::Ptr(new(*this, m_context));
-	}
+		return State::Ptr(new T(*this, m_context));
+	};
 }
 
