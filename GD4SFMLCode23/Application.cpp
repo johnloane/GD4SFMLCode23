@@ -11,6 +11,13 @@ Application::Application()
 	: m_window(sf::VideoMode(640, 480), "States", sf::Style::Close)
 	, m_stack(State::Context(m_window, m_textures, m_fonts, m_player))
 {
+	m_window.setKeyRepeatEnabled(false);
+
+	m_fonts.Load(Font::kMain, "Media/Fonts/Sansation.ttf");
+	m_textures.Load(Texture::kTitleScreen, "Media/Textures/TitleScreen.png");
+
+	RegisterStates();
+	m_stack.PushState(StateID::kTitle);
 }
 
 void Application::Run()
@@ -53,6 +60,7 @@ void Application::Render()
 {
 	m_window.clear();
 	m_stack.Draw();
+	m_window.display();
 }
 
 void Application::RegisterStates()
