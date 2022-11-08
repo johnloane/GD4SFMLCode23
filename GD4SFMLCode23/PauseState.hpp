@@ -1,21 +1,20 @@
 #pragma once
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Text.hpp>
 #include "State.hpp"
 
-class TitleState : public State
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Text.hpp>
+
+class PauseState : public State
 {
 public:
-	TitleState(StateStack& stack, Context context);
+	PauseState(StateStack& stack, Context context);
 	virtual void Draw();
-	virtual bool Update(sf::Time dt);
+	virtual bool Update();
 	virtual bool HandleEvent(const sf::Event& event);
 
 private:
 	sf::Sprite m_background_sprite;
-	sf::Text m_text;
-
-	bool m_show_text;
-	sf::Time m_text_effect_time;
+	sf::Text m_paused_text;
+	sf::Text m_instruction_text;
 };
 
