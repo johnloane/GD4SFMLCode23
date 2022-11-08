@@ -4,6 +4,7 @@
 
 class GameState : public State
 {
+public:
 	GameState(StateStack& stack, Context context);
 	virtual void Draw();
 	virtual bool Update(sf::Time dt);
