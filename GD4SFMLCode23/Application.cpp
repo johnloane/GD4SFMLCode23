@@ -8,7 +8,7 @@
 const sf::Time Application::kTimePerFrame = sf::seconds(1.f / 60.f);
 
 Application::Application()
-	: m_window(sf::VideoMode(640, 480), "States", sf::Style::Close)
+	: m_window(sf::VideoMode(1024, 768), "States", sf::Style::Close)
 	, m_stack(State::Context(m_window, m_textures, m_fonts, m_player))
 {
 	m_window.setKeyRepeatEnabled(false);
@@ -32,6 +32,11 @@ void Application::Run()
 			time_since_last_update -= kTimePerFrame;
 			ProcessInput();
 			Update(kTimePerFrame);
+
+			if (m_stack.IsEmpty())
+			{
+				m_window.close();
+			}
 		}
 
 		Render();
