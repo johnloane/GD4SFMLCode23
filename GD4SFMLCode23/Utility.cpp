@@ -1,7 +1,7 @@
 #include "Utility.hpp"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
-#include <cmath>
+
 
 void Utility::CentreOrigin(sf::Sprite& sprite)
 {
@@ -126,4 +126,9 @@ std::string Utility::toString(sf::Keyboard::Key key)
 	}
 
 	return "";
+}
+
+double Utility::ToRadians(int degrees)
+{
+	return (degrees*M_PI)/180;
 }
