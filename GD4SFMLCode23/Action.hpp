@@ -5,5 +5,5 @@ enum class Action
 	kMoveRight,
 	kMoveUp,
 	kMoveDown,
-	ActionAcount
+	kActionCount
 };

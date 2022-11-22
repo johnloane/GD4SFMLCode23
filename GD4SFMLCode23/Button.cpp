@@ -13,6 +13,7 @@ namespace GUI
         , m_selected_texture(textures.Get(Texture::kButtonSelected))
         , m_pressed_texture(textures.Get(Texture::kButtonPressed))
         , m_text("", fonts.Get(Font::kMain), 16)
+        , m_is_toggle(false)
     {
         m_sprite.setTexture(m_normal_texture);
         sf::FloatRect bounds = m_sprite.getLocalBounds();
@@ -93,7 +94,7 @@ namespace GUI
     void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         states.transform *= getTransform();
-        target.draw(m_sprite);
-        target.draw(m_text);
+        target.draw(m_sprite, states);
+        target.draw(m_text, states);
     }
 }

@@ -7,7 +7,7 @@
 namespace GUI
 {
 
-	class Label : GUI::Component
+	class Label : public GUI::Component
 	{
 	public:
 		typedef std::shared_ptr<Label> Ptr;

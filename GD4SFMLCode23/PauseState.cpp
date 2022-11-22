@@ -19,12 +19,12 @@ PauseState::PauseState(StateStack& stack, Context context)
     m_paused_text.setString("Game Paused");
     m_paused_text.setCharacterSize(70);
     Utility::CentreOrigin(m_paused_text);
-    m_paused_text.setPosition(0.5f + viewSize.x, 0.4f * viewSize.y);
+    m_paused_text.setPosition(0.5f * viewSize.x, 0.4f * viewSize.y);
 
     m_instruction_text.setFont(font);
     m_instruction_text.setString("Press Backspace to return to the main menu");
     Utility::CentreOrigin(m_instruction_text);
-    m_instruction_text.setPosition(0.5f + viewSize.x, 0.6f * viewSize.y);
+    m_instruction_text.setPosition(0.5f * viewSize.x, 0.6f * viewSize.y);
 }
 
 void PauseState::Draw()

@@ -5,5 +5,6 @@ enum class StateID
 	kTitle,
 	kMenu,
 	kGame,
-	kPause
+	kPause,
+	kSettings
 };

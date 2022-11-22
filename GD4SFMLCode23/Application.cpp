@@ -4,6 +4,7 @@
 #include "MenuState.hpp"
 #include "GameState.hpp"
 #include "PauseState.hpp"
+#include "SettingsState.hpp"
 
 const sf::Time Application::kTimePerFrame = sf::seconds(1.f / 60.f);
 
@@ -15,6 +16,9 @@ Application::Application()
 
 	m_fonts.Load(Font::kMain, "Media/Fonts/Sansation.ttf");
 	m_textures.Load(Texture::kTitleScreen, "Media/Textures/TitleScreen.png");
+	m_textures.Load(Texture::kButtonNormal, "Media/Textures/ButtonNormal.png");
+	m_textures.Load(Texture::kButtonSelected, "Media/Textures/ButtonSelected.png");
+	m_textures.Load(Texture::kButtonPressed, "Media/Textures/ButtonPressed.png");
 
 	RegisterStates();
 	m_stack.PushState(StateID::kTitle);
@@ -74,4 +78,5 @@ void Application::RegisterStates()
 	m_stack.RegisterState<MenuState>(StateID::kMenu);
 	m_stack.RegisterState<GameState>(StateID::kGame);
 	m_stack.RegisterState<PauseState>(StateID::kPause);
+	m_stack.RegisterState<SettingsState>(StateID::kSettings);
 }

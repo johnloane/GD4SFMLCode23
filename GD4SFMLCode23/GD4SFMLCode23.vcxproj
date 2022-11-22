@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -146,6 +146,7 @@
     <ClCompile Include="PauseState.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="SceneNode.cpp" />
+    <ClCompile Include="SettingsState.cpp" />
     <ClCompile Include="SpriteNode.cpp" />
     <ClCompile Include="State.cpp" />
     <ClCompile Include="StateStack.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="ResourceHolder.hpp" />
     <ClInclude Include="ResourceIdentifiers.hpp" />
     <ClInclude Include="SceneNode.hpp" />
+    <ClInclude Include="SettingsState.hpp" />
     <ClInclude Include="SpriteNode.hpp" />
     <ClInclude Include="StackAction.hpp" />
     <ClInclude Include="State.hpp" />
