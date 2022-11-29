@@ -3,7 +3,7 @@
 #include <SFML/System/Time.hpp>
 #include <functional>
 #include <cassert>
-#include "SceneNode.hpp"
+
 
 class SceneNode;
 

@@ -28,10 +28,10 @@ SceneNode::Ptr SceneNode::DetachChild(const SceneNode& node)
     return result;
 }
 
-void SceneNode::Update(sf::Time dt)
+void SceneNode::Update(sf::Time dt, CommandQueue& commands)
 {
-    UpdateCurrent(dt);
-    UpdateChildren(dt);
+    UpdateCurrent(dt, commands);
+    UpdateChildren(dt, commands);
 }
 
 sf::Vector2f SceneNode::GetWorldPosition() const
@@ -49,16 +49,16 @@ sf::Transform SceneNode::GetWorldTransform() const
     return transform;
 }
 
-void SceneNode::UpdateCurrent(sf::Time dt)
+void SceneNode::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 {
     //Do nothing here
 }
 
-void SceneNode::UpdateChildren(sf::Time dt)
+void SceneNode::UpdateChildren(sf::Time dt, CommandQueue& commands)
 {
     for (Ptr& child : m_children)
     {
-        child->Update(dt);
+        child->Update(dt, commands);
     }
 }
 

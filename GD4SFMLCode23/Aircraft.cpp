@@ -40,7 +40,7 @@ Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontH
 {
 	sf::FloatRect bounds = m_sprite.getLocalBounds();
 	m_sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
-	std::string empty_string;
+	std::string empty_string = "";
 
 	std::unique_ptr<TextNode> health_display(new TextNode(fonts, empty_string));
 	m_health_display = health_display.get();
@@ -92,7 +92,7 @@ void Aircraft::CollectMissiles(unsigned int count)
 
 void Aircraft::UpdateTexts()
 {
-	m_health_display->SetString(GetHitPoints() + "HP");
+	m_health_display->SetString(std::to_string(GetHitPoints()) + "HP");
 	m_health_display->setPosition(0.f, 50.f);
 	m_health_display->setRotation(-getRotation());
 
@@ -104,7 +104,7 @@ void Aircraft::UpdateTexts()
 		}
 		else
 		{
-			m_missile_display->SetString("M: " + m_missile_ammo);
+			m_missile_display->SetString("M: " + std::to_string(m_missile_ammo));
 		}
 	}
 }
@@ -145,7 +145,8 @@ void Aircraft::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) co
 	target.draw(m_sprite, states);
 }
 
-void Aircraft::UpdateCurrent(sf::Time dt)
+void Aircraft::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 {
 	UpdateTexts();
+	Entity::UpdateCurrent(dt, commands);
 }

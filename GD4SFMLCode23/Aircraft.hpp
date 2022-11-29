@@ -20,7 +20,7 @@ public:
 
 private:
 	virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
-	virtual void UpdateCurrent(sf::Time dt) override;
+	virtual void UpdateCurrent(sf::Time dt, CommandQueue& commands) override;
 	
 private:
 	AircraftType m_type;

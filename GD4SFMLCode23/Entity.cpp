@@ -61,7 +61,7 @@ bool Entity::IsDestroyed() const
     return m_hitpoints <=0;
 }
 
-void Entity::UpdateCurrent(sf::Time dt)
+void Entity::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 {
     move(m_velocity * dt.asSeconds());
 }

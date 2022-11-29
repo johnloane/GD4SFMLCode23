@@ -66,7 +66,7 @@ std::vector<PickupData> InitializePickupData()
     data[static_cast<int>(PickupType::kMissileRefill)].m_action = std::bind(&Aircraft::CollectMissiles, std::placeholders::_1, 3);
 
     data[static_cast<int>(PickupType::kFireSpread)].m_texture = Texture::kFireSpread;
-    data[static_cast<int>(PickupType::kFireSpread)].m_action = std::bind(&Aircraft::IncreaseSpread, std::placeholders::_1);
+    data[static_cast<int>(PickupType::kFireSpread)].m_action = std::bind(&Aircraft::IncreaseFireSpread, std::placeholders::_1);
 
     data[static_cast<int>(PickupType::kFireRate)].m_texture = Texture::kFireRate;
     data[static_cast<int>(PickupType::kFireRate)].m_action = std::bind(&Aircraft::IncreaseFireRate, std::placeholders::_1);
