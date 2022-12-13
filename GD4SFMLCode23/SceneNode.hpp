@@ -27,6 +27,7 @@ public:
 	sf::Transform GetWorldTransform() const;
 
 	void OnCommand(const Command& command, sf::Time dt);
+	virtual sf::FloatRect GetBoundingRect() const;
 
 private:
 	virtual void UpdateCurrent(sf::Time dt, CommandQueue& commands);
@@ -45,4 +46,5 @@ private:
 	SceneNode* m_parent;
 
 };
+float Distance(const SceneNode& lhs, const SceneNode& rhs);
 

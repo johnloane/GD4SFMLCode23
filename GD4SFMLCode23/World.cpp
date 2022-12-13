@@ -1,5 +1,6 @@
 #include "World.hpp"
-
+#include "Projectile.hpp"
+#include <iostream>
 
 World::World(sf::RenderWindow& window, FontHolder& font)
 	:m_window(window)
@@ -26,12 +27,15 @@ void World::Update(sf::Time dt)
 	
 	m_player_aircraft->SetVelocity(0.f, 0.f);
 
+
 	//Forward the commands to the scenegraph, sort out velocity
 	while (!m_command_queue.IsEmpty())
 	{
 		m_scenegraph.OnCommand(m_command_queue.Pop(), dt);
 	}
 	AdaptPlayerVelocity();
+
+	SpawnEnemies();
 
 	m_scenegraph.Update(dt, m_command_queue);
 	AdaptPlayerPosition();
@@ -83,6 +87,8 @@ void World::BuildScene()
 
 	m_scene_layers[static_cast<int>(Layers::kAir)]->AttachChild(std::move(leader));
 
+	AddEnemies();
+
 	/*std::unique_ptr<Aircraft> left_escort(new Aircraft(AircraftType::kRaptor, m_textures, m_fonts));
 	left_escort->setPosition(-80.f, 50.f);
 	m_player_aircraft->AttachChild(std::move(left_escort));
@@ -120,4 +126,114 @@ void World::AdaptPlayerVelocity()
 
 	//Add scrolling velocity
 	m_player_aircraft->Accelerate(0.f, m_scrollspeed);
+}
+
+sf::FloatRect World::GetViewBounds() const
+{
+	return sf::FloatRect();
+}
+
+sf::FloatRect World::GetBattlefieldBounds() const
+{
+	return sf::FloatRect();
+}
+
+void World::SpawnEnemies()
+{
+	//Spawn an enemy when it is relevant i.e when about to come on screen - in BattleFieldBounds
+	while (!m_enemy_spawn_points.empty() && m_enemy_spawn_points.back().m_y > GetBattlefieldBounds().top)
+	{
+		SpawnPoint spawn = m_enemy_spawn_points.back();
+		std::unique_ptr<Aircraft> enemy(new Aircraft(spawn.m_type, m_textures, m_fonts));
+		enemy->setPosition(spawn.m_x, spawn.m_y);
+		enemy->setRotation(180.f);
+		m_scene_layers[static_cast<int>(Layers::kAir)]->AttachChild(std::move(enemy));
+		m_enemy_spawn_points.pop_back();
+	}
+}
+
+void World::AddEnemy(AircraftType type, float relX, float relY)
+{
+	SpawnPoint spawn(type, m_spawn_position.x + relX, m_spawn_position.y - relY);
+	m_enemy_spawn_points.emplace_back(spawn);
+}
+
+void World::AddEnemies()
+{
+	//Add all emenies
+	AddEnemy(AircraftType::kRaptor, 0.f, 500.f);
+	AddEnemy(AircraftType::kRaptor, 0.f, 1000.f);
+	AddEnemy(AircraftType::kRaptor, 100.f, 1100.f);
+	AddEnemy(AircraftType::kRaptor, -100.f, 1100.f);
+	AddEnemy(AircraftType::kAvenger, -70.f, 1400.f);
+	AddEnemy(AircraftType::kAvenger, 70.f, 1400.f);
+	AddEnemy(AircraftType::kAvenger, 70.f, 1600.f);
+
+	//Sort according to y value so that lower enemies are checked first
+	std::sort(m_enemy_spawn_points.begin(), m_enemy_spawn_points.end(), [](SpawnPoint lhs, SpawnPoint rhs)
+	{
+		return lhs.m_y < rhs.m_y;
+	});
+}
+
+void World::DestroyEntitiesOutsideView()
+{
+	Command command;
+	command.category = static_cast<int>(ReceiverCategories::kEnemyAircraft) | static_cast<int>(ReceiverCategories::kProjectile);
+	command.action = DerivedAction<Entity>([this](Entity& e, sf::Time dt)
+	{
+		//Does the object interest with battlefield?
+		if (!GetBattlefieldBounds().intersects(e.GetBoundingRect()))
+		{
+			e.Destroy();
+		}
+	});
+	m_command_queue.Push(command);
+}
+
+void World::GuideMissiles()
+{
+	//Target the closest enemy in the world
+	Command enemyCollector;
+	enemyCollector.category = static_cast<int>(ReceiverCategories::kEnemyAircraft);
+	enemyCollector.action = DerivedAction<Aircraft>([this](Aircraft& enemy, sf::Time)
+	{
+		if (!enemy.IsDestroyed())
+		{
+			m_active_enemies.emplace_back(&enemy);
+		}
+	});
+
+	Command missileGuider;
+	missileGuider.category = static_cast<int>(ReceiverCategories::kAlliedProjectile);
+	missileGuider.action = DerivedAction<Projectile>([this](Projectile& missile, sf::Time dt)
+	{
+		if (!missile.IsGuided())
+		{
+			return;
+		}
+
+		float min_distance = std::numeric_limits<float>::max();
+		Aircraft* closest_enemy = nullptr;
+
+		for (Aircraft* enemy : m_active_enemies)
+		{
+			float enemy_distance = Distance(missile, *enemy);
+
+			if (enemy_distance < min_distance)
+			{
+				closest_enemy = enemy;
+				min_distance = enemy_distance;
+			}
+		}
+
+		if (closest_enemy)
+		{
+			missile.GuideTowards(closest_enemy->GetWorldPosition());
+		}
+	});
+
+	m_command_queue.Push(enemyCollector);
+	m_command_queue.Push(missileGuider);
+	m_active_enemies.clear();
 }

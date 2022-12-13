@@ -20,6 +20,7 @@ Application::Application()
 	m_textures.Load(Texture::kButtonSelected, "Media/Textures/ButtonSelected.png");
 	m_textures.Load(Texture::kButtonPressed, "Media/Textures/ButtonPressed.png");
 
+
 	RegisterStates();
 	m_stack.PushState(StateID::kTitle);
 }

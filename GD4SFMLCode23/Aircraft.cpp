@@ -6,6 +6,8 @@
 #include "Texture.hpp"
 #include "DataTables.hpp"
 #include "Utility.hpp"
+#include "ProjectileType.hpp"
+#include "Projectile.hpp"
 
 namespace
 {
@@ -30,6 +32,9 @@ Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontH
 	: Entity(Table[static_cast<int>(type)].m_hitpoints)
 	, m_type(type) 
 	, m_sprite(textures.Get(ToTextureID(type)))
+	, m_is_firing(false)
+	, m_is_launching_missile(false)
+	, m_fire_countdown(sf::Time::Zero)
 	, m_fire_rate(1)
 	, m_spread_level(1)
 	, m_missile_ammo(2)
@@ -38,6 +43,19 @@ Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontH
 	, m_travelled_distance(0.f)
 	, m_directions_index(0)
 {
+	m_fire_command.category = static_cast<int>(ReceiverCategories::kScene);
+	m_fire_command.action = [this, &textures](SceneNode& node, sf::Time dt)
+	{
+		CreateBullet(node, textures);
+	};
+
+	m_missile_command.category = static_cast<int>(ReceiverCategories::kScene);
+	m_missile_command.action = [this, &textures](SceneNode& node, sf::Time dt)
+	{
+		CreateProjectile(node, ProjectileType::kMissile, 0.f, 0.5f, textures);
+	};
+
+
 	sf::FloatRect bounds = m_sprite.getLocalBounds();
 	m_sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
 	std::string empty_string = "";
@@ -96,7 +114,7 @@ void Aircraft::UpdateTexts()
 	m_health_display->setPosition(0.f, 50.f);
 	m_health_display->setRotation(-getRotation());
 
-	if (m_missile_ammo)
+	if (m_missile_display)
 	{
 		if (m_missile_ammo == 0)
 		{
@@ -140,6 +158,61 @@ float Aircraft::GetMaxSpeed() const
 	return Table[static_cast<int>(m_type)].m_speed;
 }
 
+void Aircraft::Fire()
+{
+	if (Table[static_cast<int>(m_type)].m_fire_interval != sf::Time::Zero)
+	{
+		m_is_firing = true;
+	}
+}
+
+void Aircraft::LaunchMissile()
+{
+	if (m_missile_ammo > 0)
+	{
+		m_is_launching_missile = true;
+		--m_missile_ammo;
+	}
+}
+
+void Aircraft::CreateBullet(SceneNode& node, const TextureHolder& textures) const
+{
+	ProjectileType type = IsAllied() ? ProjectileType::kAlliedBullet : ProjectileType::kEnemyBullet;
+	switch (m_spread_level)
+	{
+	case 1:
+		CreateProjectile(node, type, 0.0f, 0.5f, textures);
+		break;
+	case 2:
+		CreateProjectile(node, type, -0.5f, 0.5f, textures);
+		CreateProjectile(node, type, 0.5f, 0.5f, textures);
+		break;
+	case 3:
+		CreateProjectile(node, type, 0.0f, 0.5f, textures);
+		CreateProjectile(node, type, -0.5f, 0.5f, textures);
+		CreateProjectile(node, type, 0.5f, 0.5f, textures);
+		break;
+	}
+}
+
+
+void Aircraft::CreateProjectile(SceneNode& node, ProjectileType type, float x_offset, float y_offset, const TextureHolder& textures) const
+{
+	std::unique_ptr<Projectile> projectile(new Projectile(type, textures));
+	sf::Vector2f offset(x_offset * m_sprite.getGlobalBounds().width, y_offset * m_sprite.getGlobalBounds().height);
+	sf::Vector2f velocity(0, projectile->GetMaxSpeed());
+
+	float sign = IsAllied() ? -1.f: +1.f;
+	projectile->setPosition(GetWorldPosition() + offset * sign);
+	projectile->SetVelocity(velocity * sign);
+	node.AttachChild(std::move(projectile));
+}
+
+sf::FloatRect Aircraft::GetBoundingRect() const
+{
+	return GetWorldTransform().transformRect(m_sprite.getGlobalBounds());
+}
+
 void Aircraft::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	target.draw(m_sprite, states);
@@ -149,4 +222,40 @@ void Aircraft::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 {
 	UpdateTexts();
 	Entity::UpdateCurrent(dt, commands);
+	UpdateMovementPattern(dt);
+}
+
+void Aircraft::CheckProjectileLaunch(sf::Time dt, CommandQueue& commands)
+{
+	//Enemies try to fire as often as they can
+	if (!IsAllied())
+	{
+		Fire();
+	}
+
+	if (m_is_firing && m_fire_countdown <= sf::Time::Zero)
+	{
+		commands.Push(m_fire_command);
+		m_fire_countdown += Table[static_cast<int>(m_type)].m_fire_interval / (m_fire_rate + 1.f);
+		m_is_firing = false;
+	}
+	else if (m_fire_countdown > sf::Time::Zero)
+	{
+		//Wait, can't fire
+		m_fire_countdown -= dt;
+		m_is_firing = false;
+	}
+
+	//Missile launch
+	if (m_is_launching_missile)
+	{
+		commands.Push(m_missile_command);
+		m_is_launching_missile = false;
+	}
+
+}
+
+bool Aircraft::IsAllied() const
+{
+	return m_type == AircraftType::kEagle;
 }

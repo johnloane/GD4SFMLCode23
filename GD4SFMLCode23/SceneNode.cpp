@@ -1,6 +1,7 @@
 #include "SceneNode.hpp"
 #include "ReceiverCategories.hpp"
 #include "Command.hpp"
+#include "Utility.hpp"
 #include <cassert>
 #include <memory>
 
@@ -102,4 +103,14 @@ void SceneNode::OnCommand(const Command& command, sf::Time dt)
     {
         child->OnCommand(command, dt);
     }
+}
+
+sf::FloatRect SceneNode::GetBoundingRect() const
+{
+    return sf::FloatRect();
+}
+
+float Distance(const SceneNode& lhs, const SceneNode& rhs)
+{
+    return Utility::Length(lhs.GetWorldPosition() - rhs.GetWorldPosition());
 }
