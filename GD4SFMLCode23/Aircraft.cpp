@@ -42,6 +42,7 @@ Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontH
 	, m_missile_display(nullptr)
 	, m_travelled_distance(0.f)
 	, m_directions_index(0)
+	, m_is_marked_for_removal(false)
 {
 	m_fire_command.category = static_cast<int>(ReceiverCategories::kScene);
 	m_fire_command.action = [this, &textures](SceneNode& node, sf::Time dt)
@@ -213,6 +214,11 @@ sf::FloatRect Aircraft::GetBoundingRect() const
 	return GetWorldTransform().transformRect(m_sprite.getGlobalBounds());
 }
 
+bool Aircraft::IsMarkedForRemoval()
+{
+	return m_is_marked_for_removal;
+}
+
 void Aircraft::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	target.draw(m_sprite, states);
@@ -220,6 +226,7 @@ void Aircraft::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) co
 
 void Aircraft::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 {
+	CheckProjectileLaunch(dt, commands);
 	UpdateTexts();
 	Entity::UpdateCurrent(dt, commands);
 	UpdateMovementPattern(dt);
@@ -230,7 +237,7 @@ void Aircraft::CheckProjectileLaunch(sf::Time dt, CommandQueue& commands)
 	//Enemies try to fire as often as they can
 	if (!IsAllied())
 	{
-		Fire();
+		//Fire();
 	}
 
 	if (m_is_firing && m_fire_countdown <= sf::Time::Zero)

@@ -4,6 +4,8 @@
 #include "Utility.hpp"
 #include <cassert>
 #include <memory>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
 
 SceneNode::SceneNode():m_children(), m_parent(nullptr)
 {
@@ -70,6 +72,33 @@ void SceneNode::draw(sf::RenderTarget& target, sf::RenderStates states) const
     //Draw the node and children with changed transform
     DrawCurrent(target, states);
     DrawChildren(target, states);
+    sf::FloatRect rect = GetBoundingRect();
+    DrawBoundingRect(target, states, rect);
+}
+
+void SceneNode::DrawBoundingRect(sf::RenderTarget& target, sf::RenderStates states, sf::FloatRect& rect) const
+{
+    sf::RectangleShape shape;
+    shape.setPosition(sf::Vector2f(rect.left, rect.top));
+    shape.setSize(sf::Vector2f(rect.width, rect.height));
+    shape.setFillColor(sf::Color::Transparent);
+    shape.setOutlineColor(sf::Color::Green);
+    shape.setOutlineThickness(1.f);
+    target.draw(shape);
+}
+
+void SceneNode::CheckSceneCollision(SceneNode& scene_graph, std::set<Pair>& collision_pairs)
+{
+    CheckNodeCollision(scene_graph, collision_pairs);
+    for (Ptr& child : scene_graph.m_children)
+    {
+        CheckSceneCollision(*child, collision_pairs);
+    }
+}
+
+bool Collision(const SceneNode& lhs, const SceneNode& rhs)
+{
+    return lhs.GetBoundingRect().intersects(rhs.GetBoundingRect());
 }
 
 void SceneNode::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
@@ -88,6 +117,35 @@ void SceneNode::DrawChildren(sf::RenderTarget& target, sf::RenderStates states) 
 unsigned int SceneNode::GetCategory() const
 {
     return static_cast<unsigned int>(ReceiverCategories::kScene);
+}
+
+void SceneNode::CheckNodeCollision(SceneNode& node, std::set<Pair>& collision_pairs)
+{
+    if (this != &node && Collision(*this, node) && !IsDestroyed() && !node.IsDestroyed())
+    {
+        collision_pairs.insert(std::minmax(this, &node));
+    }
+    for (Ptr& child : m_children)
+    {
+        child->CheckNodeCollision(node, collision_pairs);
+    }
+}
+
+bool SceneNode::IsMarkedForRemoval()
+{
+    return IsDestroyed();
+}
+
+void SceneNode::RemoveWrecks()
+{
+    auto wreck_field_begin = std::remove_if(m_children.begin(), m_children.end(), std::mem_fn(&SceneNode::IsMarkedForRemoval));
+    m_children.erase(wreck_field_begin, m_children.end());
+    std::for_each(m_children.begin(), m_children.end(), std::mem_fn(&SceneNode::RemoveWrecks));
+}
+
+bool SceneNode::IsDestroyed() const
+{
+    return false;
 }
 
 void SceneNode::OnCommand(const Command& command, sf::Time dt)

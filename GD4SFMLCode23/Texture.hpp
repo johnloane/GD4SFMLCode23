@@ -14,5 +14,6 @@ enum class Texture
 	kHealthRefill,
 	kMissileRefill,
 	kFireSpread,
-	kFireRate
+	kFireRate,
+	kFinishLine
 };

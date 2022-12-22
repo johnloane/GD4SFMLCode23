@@ -24,6 +24,7 @@ public:
 	void CreateProjectile(SceneNode& node, ProjectileType type, float x_offset, float y_offset, const TextureHolder& textures) const;
 
 	sf::FloatRect GetBoundingRect() const override;
+	bool IsMarkedForRemoval() override;
 
 private:
 	virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
@@ -48,5 +49,7 @@ private:
 	bool m_is_firing;
 	bool m_is_launching_missile;
 	sf::Time m_fire_countdown;
+
+	bool m_is_marked_for_removal;
 };
 

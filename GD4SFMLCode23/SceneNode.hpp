@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <vector>
+#include <set>
 
 class Command;
 
@@ -15,6 +16,7 @@ class SceneNode : public sf::Transformable, public sf::Drawable, private sf::Non
 {
 public:
 	typedef std::unique_ptr<SceneNode> Ptr;
+	typedef std::pair<SceneNode*, SceneNode*> Pair;
 
 public:
 	SceneNode();
@@ -28,6 +30,12 @@ public:
 
 	void OnCommand(const Command& command, sf::Time dt);
 	virtual sf::FloatRect GetBoundingRect() const;
+	void DrawBoundingRect(sf::RenderTarget& target, sf::RenderStates states, sf::FloatRect& rect) const;
+
+	void CheckSceneCollision(SceneNode& scene_graph, std::set<Pair>& collision_pairs);
+	bool IsDestroyed() const;
+	virtual unsigned int GetCategory() const;
+	void RemoveWrecks();
 
 private:
 	virtual void UpdateCurrent(sf::Time dt, CommandQueue& commands);
@@ -38,7 +46,10 @@ private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 	virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 	void DrawChildren(sf::RenderTarget& target, sf::RenderStates states) const;
-	virtual unsigned int GetCategory() const;
+	
+	void CheckNodeCollision(SceneNode& node, std::set<Pair>& collisionPairs);
+	virtual bool IsMarkedForRemoval();
+	
 	
 
 private:
@@ -47,4 +58,5 @@ private:
 
 };
 float Distance(const SceneNode& lhs, const SceneNode& rhs);
+bool Collision(const SceneNode& lhs, const SceneNode& rhs);
 

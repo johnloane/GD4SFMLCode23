@@ -41,6 +41,8 @@ private:
 
 	void GuideMissiles();
 
+	void HandleCollisions();
+
 private:
 	struct SpawnPoint
 	{
