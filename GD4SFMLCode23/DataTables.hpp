@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <vector>
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Time.hpp>
 #include "ResourceIdentifiers.hpp"
 
@@ -20,6 +21,7 @@ struct AircraftData
 	int m_hitpoints;
 	float m_speed;
 	Texture m_texture;
+	sf::IntRect m_texture_rect;
 	sf::Time m_fire_interval;
 	std::vector<Direction> m_directions;
 };
@@ -29,12 +31,14 @@ struct ProjectileData
 	int m_damage;
 	float m_speed;
 	Texture m_texture;
+	sf::IntRect m_texture_rect;
 };
 
 struct PickupData
 {
 	std::function<void(Aircraft&)> m_action;
 	Texture m_texture;
+	sf::IntRect m_texture_rect;
 };
 
 std::vector<AircraftData> InitializeAircraftData();

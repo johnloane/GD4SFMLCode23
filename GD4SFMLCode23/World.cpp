@@ -76,18 +76,11 @@ CommandQueue& World::GetCommandQueue()
 
 void World::LoadTextures()
 {
-	m_textures.Load(Texture::kEagle, "Media/Textures/Eagle.png");
-	m_textures.Load(Texture::kRaptor, "Media/Textures/Raptor.png");
-	m_textures.Load(Texture::kAvenger, "Media/Textures/Avenger.png");
-	m_textures.Load(Texture::kDesert, "Media/Textures/Desert.png");
-	m_textures.Load(Texture::kBullet, "Media/Textures/Bullet.png");
-	m_textures.Load(Texture::kMissile, "Media/Textures/Missile.png");
+	m_textures.Load(Texture::kEntities, "Media/Textures/Entities.png");
+	m_textures.Load(Texture::kJungle, "Media/Textures/Jungle.png");
+	m_textures.Load(Texture::kExplosion, "Media/Textures/Explosion.png");
+	m_textures.Load(Texture::kParticle, "Media/Textures/Particle.png");
 	m_textures.Load(Texture::kFinishLine, "Media/Textures/FinishLine.png");
-
-	m_textures.Load(Texture::kHealthRefill, "Media/Textures/HealthRefill.png");
-	m_textures.Load(Texture::kMissileRefill, "Media/Textures/MissileRefill.png");
-	m_textures.Load(Texture::kFireSpread, "Media/Textures/FireSpread.png");
-	m_textures.Load(Texture::kFireRate, "Media/Textures/FireRate.png");
 }
 
 void World::BuildScene()
@@ -102,7 +95,7 @@ void World::BuildScene()
 	}
 
 	//Prepare the background
-	sf::Texture& texture = m_textures.Get(Texture::kDesert);
+	sf::Texture& texture = m_textures.Get(Texture::kJungle);
 	sf::IntRect textureRect(m_world_bounds);
 	texture.setRepeated(true);
 

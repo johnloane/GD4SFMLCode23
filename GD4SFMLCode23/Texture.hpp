@@ -1,6 +1,11 @@
 #pragma once
 enum class Texture
 {
+	kEntities,
+	kJungle,
+	kButtons, 
+	kExplosion,
+	kParticle,
 	kDesert,
 	kEagle,
 	kRaptor,
