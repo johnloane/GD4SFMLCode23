@@ -16,6 +16,16 @@ void GameState::Draw()
 bool GameState::Update(sf::Time dt)
 {
     m_world.Update(dt);
+    if (!m_world.HasAlivePlayer())
+    {
+        m_player.SetMissionStatus(MissionStatus::kMissionFailure);
+        RequestStackPush(StateID::kGameOver);
+    }
+    else if (m_world.HasPlayerReachedEnd())
+    {
+        m_player.SetMissionStatus(MissionStatus::kMissionSuccess);
+        RequestStackPush(StateID::kGameOver);
+    }
     CommandQueue& commands = m_world.GetCommandQueue();
     m_player.HandleRealtimeInput(commands);
     return true;

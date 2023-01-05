@@ -3,7 +3,6 @@
 #include "DataTables.hpp"
 #include "ResourceHolder.hpp"
 #include "Utility.hpp"
-#include <iostream>
 
 namespace
 {
@@ -59,7 +58,6 @@ void Projectile::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 	if (IsGuided())
 	{
 		const float approach_rate = 200.f;
-		std::cout << "Updating projectile" << std::endl;
 		sf::Vector2f new_velocity = Utility::UnitVector(approach_rate * dt.asSeconds() * m_target_direction + GetVelocity());
 		new_velocity *= GetMaxSpeed();
 		float angle = std::atan2(new_velocity.y, new_velocity.x);

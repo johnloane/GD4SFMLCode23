@@ -24,13 +24,15 @@ public:
 	void CreateProjectile(SceneNode& node, ProjectileType type, float x_offset, float y_offset, const TextureHolder& textures) const;
 
 	sf::FloatRect GetBoundingRect() const override;
-	bool IsMarkedForRemoval() override;
+	bool IsMarkedForRemoval() const override;
 
 private:
-	virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
+	virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const override;
 	virtual void UpdateCurrent(sf::Time dt, CommandQueue& commands) override;
 	void CheckProjectileLaunch(sf::Time dt, CommandQueue& commands);
 	bool IsAllied() const;
+	void CreatePickup(SceneNode& node, const TextureHolder& textures) const;
+	void CheckPickupDrop(CommandQueue& commands);
 	
 private:
 	AircraftType m_type;
@@ -38,6 +40,7 @@ private:
 
 	Command m_fire_command;
 	Command m_missile_command;
+	Command m_drop_pickup_command;
 
 	unsigned int m_fire_rate;
 	unsigned int m_spread_level;

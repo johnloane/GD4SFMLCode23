@@ -22,6 +22,7 @@ sf::Vector2f Entity::GetVelocity() const
     return m_velocity;
 }
 
+
 void Entity::Accelerate(sf::Vector2f velocity)
 {
     m_velocity += velocity;

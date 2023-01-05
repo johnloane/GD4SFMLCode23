@@ -4,6 +4,7 @@
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include "CommandQueue.hpp"
+#include "ReceiverCategories.hpp"
 
 #include <memory>
 #include <vector>
@@ -19,7 +20,7 @@ public:
 	typedef std::pair<SceneNode*, SceneNode*> Pair;
 
 public:
-	SceneNode();
+	explicit SceneNode(ReceiverCategories category = ReceiverCategories::kNone);
 	void AttachChild(Ptr child);
 	Ptr DetachChild(const SceneNode& node);
 
@@ -33,7 +34,7 @@ public:
 	void DrawBoundingRect(sf::RenderTarget& target, sf::RenderStates states, sf::FloatRect& rect) const;
 
 	void CheckSceneCollision(SceneNode& scene_graph, std::set<Pair>& collision_pairs);
-	bool IsDestroyed() const;
+	
 	virtual unsigned int GetCategory() const;
 	void RemoveWrecks();
 
@@ -48,13 +49,15 @@ private:
 	void DrawChildren(sf::RenderTarget& target, sf::RenderStates states) const;
 	
 	void CheckNodeCollision(SceneNode& node, std::set<Pair>& collisionPairs);
-	virtual bool IsMarkedForRemoval();
+	virtual bool IsDestroyed() const;
+	virtual bool IsMarkedForRemoval() const;
 	
 	
 
 private:
 	std::vector<Ptr> m_children;
 	SceneNode* m_parent;
+	ReceiverCategories m_default_category;
 
 };
 float Distance(const SceneNode& lhs, const SceneNode& rhs);

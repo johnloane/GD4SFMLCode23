@@ -21,5 +21,6 @@ public:
 	static double ToDegrees(double angle);
 	static sf::Vector2f UnitVector(sf::Vector2f vector);
 	static float Length(sf::Vector2f vector);
+	static int RandomInt(int exclusive_max);
 };
 

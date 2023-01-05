@@ -8,6 +8,10 @@
 #include "Utility.hpp"
 #include "ProjectileType.hpp"
 #include "Projectile.hpp"
+#include "Pickup.hpp"
+#include "PickupType.hpp"
+
+#include <iostream>
 
 namespace
 {
@@ -23,6 +27,9 @@ Texture ToTextureID(AircraftType type)
 		break;
 	case AircraftType::kRaptor:
 		return Texture::kRaptor;
+		break;
+	case AircraftType::kAvenger:
+		return Texture::kAvenger;
 		break;
 	}
 	return Texture::kEagle;
@@ -44,6 +51,8 @@ Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontH
 	, m_directions_index(0)
 	, m_is_marked_for_removal(false)
 {
+	Utility::CentreOrigin(m_sprite);
+
 	m_fire_command.category = static_cast<int>(ReceiverCategories::kScene);
 	m_fire_command.action = [this, &textures](SceneNode& node, sf::Time dt)
 	{
@@ -56,18 +65,20 @@ Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontH
 		CreateProjectile(node, ProjectileType::kMissile, 0.f, 0.5f, textures);
 	};
 
+	m_drop_pickup_command.category = static_cast<int>(ReceiverCategories::kScene);
+	m_drop_pickup_command.action = [this, &textures](SceneNode& node, sf::Time)
+	{
+		CreatePickup(node, textures);
+	};
 
-	sf::FloatRect bounds = m_sprite.getLocalBounds();
-	m_sprite.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
-	std::string empty_string = "";
 
-	std::unique_ptr<TextNode> health_display(new TextNode(fonts, empty_string));
+	std::unique_ptr<TextNode> health_display(new TextNode(fonts, ""));
 	m_health_display = health_display.get();
 	AttachChild(std::move(health_display));
 
-	if (GetCategory() == static_cast<int>(ReceiverCategories::kPlayerAircraft))
+	if (Aircraft::GetCategory() == static_cast<int>(ReceiverCategories::kPlayerAircraft))
 	{
-		std::unique_ptr<TextNode> missile_display(new TextNode(fonts, empty_string));
+		std::unique_ptr<TextNode> missile_display(new TextNode(fonts, ""));
 		missile_display->setPosition(0, 70);
 		m_missile_display = missile_display.get();
 		AttachChild(std::move(missile_display));
@@ -78,14 +89,11 @@ Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontH
 
 unsigned int Aircraft::GetCategory() const
 {
-	switch (m_type)
+	if (IsAllied())
 	{
-	case AircraftType::kEagle:
-		return static_cast<unsigned int>(ReceiverCategories::kPlayerAircraft);
-	default:
-		return static_cast<unsigned int>(ReceiverCategories::kEnemyAircraft);
-
+		return static_cast<int>(ReceiverCategories::kPlayerAircraft);
 	}
+	return static_cast<int>(ReceiverCategories::kEnemyAircraft);
 }
 
 void Aircraft::IncreaseFireRate()
@@ -138,7 +146,7 @@ void Aircraft::UpdateMovementPattern(sf::Time dt)
 		if (m_travelled_distance > directions[m_directions_index].m_distance)
 		{
 			m_directions_index = (m_directions_index + 1) % directions.size();
-			m_travelled_distance = 0;
+			m_travelled_distance = 0.f;
 		}
 
 		//Compute velocity
@@ -214,10 +222,28 @@ sf::FloatRect Aircraft::GetBoundingRect() const
 	return GetWorldTransform().transformRect(m_sprite.getGlobalBounds());
 }
 
-bool Aircraft::IsMarkedForRemoval()
+bool Aircraft::IsMarkedForRemoval() const
 {
 	return m_is_marked_for_removal;
 }
+
+void Aircraft::CheckPickupDrop(CommandQueue& commands)
+{
+	if (!IsAllied() && Utility::RandomInt(3) == 0)
+	{
+		commands.Push(m_drop_pickup_command);
+	}
+}
+
+void Aircraft::CreatePickup(SceneNode& node, const TextureHolder& textures) const
+{
+	auto type = static_cast<PickupType>(Utility::RandomInt(static_cast<int>(PickupType::kPickupCount)));
+	std::unique_ptr<Pickup> pickup(new Pickup(type, textures));
+	pickup->setPosition(GetWorldPosition());
+	pickup->SetVelocity(0.f, 0.f);
+	node.AttachChild(std::move(pickup));
+}
+
 
 void Aircraft::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
 {
@@ -226,10 +252,18 @@ void Aircraft::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) co
 
 void Aircraft::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 {
+	if (IsDestroyed())
+	{
+		CheckPickupDrop(commands);
+		m_is_marked_for_removal = true;
+		return;
+	}
+	//Check if bullets or missiles are fired
 	CheckProjectileLaunch(dt, commands);
-	UpdateTexts();
-	Entity::UpdateCurrent(dt, commands);
+	// Update enemy movement pattern; apply velocity
 	UpdateMovementPattern(dt);
+	Entity::UpdateCurrent(dt, commands);
+	UpdateTexts();
 }
 
 void Aircraft::CheckProjectileLaunch(sf::Time dt, CommandQueue& commands)
@@ -237,7 +271,7 @@ void Aircraft::CheckProjectileLaunch(sf::Time dt, CommandQueue& commands)
 	//Enemies try to fire as often as they can
 	if (!IsAllied())
 	{
-		//Fire();
+		Fire();
 	}
 
 	if (m_is_firing && m_fire_countdown <= sf::Time::Zero)

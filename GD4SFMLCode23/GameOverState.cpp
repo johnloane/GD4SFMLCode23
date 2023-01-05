@@ -6,6 +6,7 @@
 #include "Player.hpp"
 #include "ResourceHolder.hpp"
 #include "Utility.hpp"
+#include "MissionStatus.hpp"
 
 GameOverState::GameOverState(StateStack& stack, Context context)
     : State(stack, context)

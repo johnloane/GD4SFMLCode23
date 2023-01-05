@@ -13,12 +13,12 @@ struct AircraftMover
     {}
     void operator()(Aircraft& aircraft, sf::Time) const
     {
-        aircraft.Accelerate(velocity);
+        aircraft.Accelerate(velocity * aircraft.GetMaxSpeed());
     }
     sf::Vector2f velocity;
 };
 
-Player::Player()
+Player::Player() : m_current_mission_status(MissionStatus::kMissionRunning)
 {
     //Set initial key bindings
     m_key_binding[sf::Keyboard::Left] = Action::kMoveLeft;
@@ -93,14 +93,23 @@ sf::Keyboard::Key Player::GetAssignedKey(Action action) const
     return sf::Keyboard::Unknown;
 }
 
+void Player::SetMissionStatus(MissionStatus status)
+{
+    m_current_mission_status = status;
+}
+
+MissionStatus Player::GetMissionStatus() const
+{
+    return m_current_mission_status;
+}
+
 void Player::InitializeActions()
 {
-    //TODO Normalize to avoid faster movement along diagonals
     const float kPlayerSpeed = 200.f;
-    m_action_binding[Action::kMoveLeft].action = DerivedAction<Aircraft>(AircraftMover(-kPlayerSpeed, 0.f));
-    m_action_binding[Action::kMoveRight].action = DerivedAction<Aircraft>(AircraftMover(kPlayerSpeed, 0.f));
-    m_action_binding[Action::kMoveUp].action = DerivedAction<Aircraft>(AircraftMover(0.f, -kPlayerSpeed));
-    m_action_binding[Action::kMoveDown].action = DerivedAction<Aircraft>(AircraftMover(0.f, kPlayerSpeed));
+    m_action_binding[Action::kMoveLeft].action = DerivedAction<Aircraft>(AircraftMover(-1, 0.f));
+    m_action_binding[Action::kMoveRight].action = DerivedAction<Aircraft>(AircraftMover(+1, 0.f));
+    m_action_binding[Action::kMoveUp].action = DerivedAction<Aircraft>(AircraftMover(0.f, -1));
+    m_action_binding[Action::kMoveDown].action = DerivedAction<Aircraft>(AircraftMover(0.f, 1));
     m_action_binding[Action::kBulletFire].action = DerivedAction<Aircraft>([](Aircraft& a, sf::Time dt)
     {
         a.Fire();

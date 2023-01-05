@@ -7,7 +7,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 
-SceneNode::SceneNode():m_children(), m_parent(nullptr)
+SceneNode::SceneNode(ReceiverCategories category) :m_children(), m_parent(nullptr), m_default_category(category)
 {
 }
 
@@ -116,7 +116,7 @@ void SceneNode::DrawChildren(sf::RenderTarget& target, sf::RenderStates states) 
 
 unsigned int SceneNode::GetCategory() const
 {
-    return static_cast<unsigned int>(ReceiverCategories::kScene);
+    return static_cast<unsigned int>(m_default_category);
 }
 
 void SceneNode::CheckNodeCollision(SceneNode& node, std::set<Pair>& collision_pairs)
@@ -131,7 +131,7 @@ void SceneNode::CheckNodeCollision(SceneNode& node, std::set<Pair>& collision_pa
     }
 }
 
-bool SceneNode::IsMarkedForRemoval()
+bool SceneNode::IsMarkedForRemoval() const
 {
     return IsDestroyed();
 }

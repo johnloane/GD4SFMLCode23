@@ -1,7 +1,10 @@
 #include "World.hpp"
 #include "Projectile.hpp"
 #include "Pickup.hpp"
+#include "Utility.hpp"
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <iostream>
+#include <limits>
 
 World::World(sf::RenderWindow& window, FontHolder& font)
 	:m_window(window)
@@ -56,6 +59,16 @@ void World::Draw()
 	m_window.draw(m_scenegraph);
 }
 
+bool World::HasAlivePlayer() const
+{
+	return !m_player_aircraft->IsMarkedForRemoval();
+}
+
+bool World::HasPlayerReachedEnd() const
+{
+	return !m_world_bounds.contains(m_player_aircraft->getPosition());
+}
+
 CommandQueue& World::GetCommandQueue()
 {
 	return m_command_queue;
@@ -65,10 +78,16 @@ void World::LoadTextures()
 {
 	m_textures.Load(Texture::kEagle, "Media/Textures/Eagle.png");
 	m_textures.Load(Texture::kRaptor, "Media/Textures/Raptor.png");
+	m_textures.Load(Texture::kAvenger, "Media/Textures/Avenger.png");
 	m_textures.Load(Texture::kDesert, "Media/Textures/Desert.png");
 	m_textures.Load(Texture::kBullet, "Media/Textures/Bullet.png");
 	m_textures.Load(Texture::kMissile, "Media/Textures/Missile.png");
 	m_textures.Load(Texture::kFinishLine, "Media/Textures/FinishLine.png");
+
+	m_textures.Load(Texture::kHealthRefill, "Media/Textures/HealthRefill.png");
+	m_textures.Load(Texture::kMissileRefill, "Media/Textures/MissileRefill.png");
+	m_textures.Load(Texture::kFireSpread, "Media/Textures/FireSpread.png");
+	m_textures.Load(Texture::kFireRate, "Media/Textures/FireRate.png");
 }
 
 void World::BuildScene()
@@ -76,7 +95,8 @@ void World::BuildScene()
 	//Initialize the different layers
 	for(std::size_t i=0; i < static_cast<int>(Layers::kLayerCount); ++i)
 	{ 
-		SceneNode::Ptr layer(new SceneNode());
+		ReceiverCategories category = (i == static_cast<int>(Layers::kAir)) ? ReceiverCategories::kScene : ReceiverCategories::kNone;
+		SceneNode::Ptr layer(new SceneNode(category));
 		m_scene_layers[i] = layer.get();
 		m_scenegraph.AttachChild(std::move(layer));
 	}
@@ -101,7 +121,6 @@ void World::BuildScene()
 	std::unique_ptr<Aircraft> leader(new Aircraft(AircraftType::kEagle, m_textures, m_fonts));
 	m_player_aircraft = leader.get();
 	m_player_aircraft->setPosition(m_spawn_position);
-	m_player_aircraft->SetVelocity(40.f, m_scrollspeed);
 
 	m_scene_layers[static_cast<int>(Layers::kAir)]->AttachChild(std::move(leader));
 
@@ -121,7 +140,7 @@ void World::BuildScene()
 void World::AdaptPlayerPosition()
 {
 	//Keep the player on the sceen 
-	sf::FloatRect view_bounds(m_camera.getCenter() - m_camera.getSize() / 2.f, m_camera.getSize());
+	sf::FloatRect view_bounds = GetViewBounds();
 	const float border_distance = 40.f;
 
 	sf::Vector2f position = m_player_aircraft->getPosition();
@@ -148,12 +167,17 @@ void World::AdaptPlayerVelocity()
 
 sf::FloatRect World::GetViewBounds() const
 {
-	return sf::FloatRect();
+	return sf::FloatRect(m_camera.getCenter() - m_camera.getSize() / 2.f, m_camera.getSize());
 }
 
 sf::FloatRect World::GetBattlefieldBounds() const
 {
-	return sf::FloatRect();
+	//Return camera bounds + a small area at the top where enemies spawn offscreen
+	sf::FloatRect bounds = GetViewBounds();
+	bounds.top -= 100.f;
+	bounds.height += 100.f;
+
+	return bounds;
 }
 
 void World::SpawnEnemies()
@@ -286,7 +310,6 @@ void World::HandleCollisions()
 			auto& player = static_cast<Aircraft&>(*pair.first);
 			auto& enemy = static_cast<Aircraft&>(*pair.second);
 			//Collision Response
-			std::cout << enemy.GetHitPoints() << std::endl;
 			player.Damage(enemy.GetHitPoints());
 			enemy.Destroy();
 		}

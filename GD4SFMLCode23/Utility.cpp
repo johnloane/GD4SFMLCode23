@@ -3,6 +3,20 @@
 #include <SFML/Graphics/Text.hpp>
 #include <cassert>
 
+#include <cmath>
+#include <random>
+
+namespace
+{
+	std::default_random_engine CreateRandomEngine()
+	{
+		auto seed = static_cast<unsigned long>(std::time(nullptr));
+		return std::default_random_engine(seed);
+	}
+
+	auto RandomEngine = CreateRandomEngine();
+}
+
 
 void Utility::CentreOrigin(sf::Sprite& sprite)
 {
@@ -149,4 +163,10 @@ sf::Vector2f Utility::UnitVector(sf::Vector2f vector)
 float Utility::Length(sf::Vector2f vector)
 {
 	return sqrtf(powf(vector.x, 2) + powf(vector.y, 2));
+}
+
+int Utility::RandomInt(int exclusiveMax)
+{
+	std::uniform_int_distribution<> distr(0, exclusiveMax - 1);
+	return distr(RandomEngine);
 }
