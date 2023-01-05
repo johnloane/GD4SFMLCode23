@@ -17,6 +17,7 @@ public:
 	void Damage(unsigned int points);
 	void Destroy();
 	virtual bool IsDestroyed() const override;
+	virtual void Remove();
 
 protected:
 	virtual void UpdateCurrent(sf::Time dt, CommandQueue& commands);

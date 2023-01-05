@@ -6,6 +6,8 @@
 #include <cmath>
 #include <random>
 
+#include "Animation.hpp"
+
 namespace
 {
 	std::default_random_engine CreateRandomEngine()
@@ -28,6 +30,12 @@ void Utility::CentreOrigin(sf::Text& text)
 {
 	sf::FloatRect bounds = text.getLocalBounds();
 	text.setOrigin(std::floor(bounds.left + bounds.width / 2.f), std::floor(bounds.top + bounds.height / 2.f));
+}
+
+void Utility::CentreOrigin(Animation& animation)
+{
+	sf::FloatRect bounds = animation.GetLocalBounds();
+	animation.setOrigin(std::floor(bounds.left + bounds.width / 2.f), std::floor(bounds.top + bounds.height / 2.f));
 }
 
 std::string Utility::toString(sf::Keyboard::Key key)

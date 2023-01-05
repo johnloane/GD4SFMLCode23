@@ -7,6 +7,7 @@
 TextNode::TextNode(const FontHolder& fonts, const std::string& text)
 	: m_text(text, fonts.Get(Font::kMain), 20)
 {
+	SetString(text);
 }
 
 void TextNode::SetString(const std::string& text)

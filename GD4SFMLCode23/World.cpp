@@ -230,7 +230,7 @@ void World::DestroyEntitiesOutsideView()
 		//Does the object interest with battlefield?
 		if (!GetBattlefieldBounds().intersects(e.GetBoundingRect()))
 		{
-			e.Destroy();
+			e.Remove();
 		}
 	});
 	m_command_queue.Push(command);

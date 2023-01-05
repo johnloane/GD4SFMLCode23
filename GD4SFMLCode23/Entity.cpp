@@ -66,3 +66,8 @@ void Entity::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 {
     move(m_velocity * dt.asSeconds());
 }
+
+void Entity::Remove()
+{
+    Destroy();
+}

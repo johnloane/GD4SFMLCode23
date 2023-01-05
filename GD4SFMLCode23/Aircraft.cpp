@@ -39,6 +39,7 @@ Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontH
 	: Entity(Table[static_cast<int>(type)].m_hitpoints)
 	, m_type(type) 
 	, m_sprite(textures.Get(Table[static_cast<int>(type)].m_texture), Table[static_cast<int>(type)].m_texture_rect)
+	, m_explosion(textures.Get(Texture::kExplosion))
 	, m_is_firing(false)
 	, m_is_launching_missile(false)
 	, m_fire_countdown(sf::Time::Zero)
@@ -49,9 +50,15 @@ Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontH
 	, m_missile_display(nullptr)
 	, m_travelled_distance(0.f)
 	, m_directions_index(0)
-	, m_is_marked_for_removal(false)
+	, m_show_explosion(true)
+	, m_spawned_pickup(false)
 {
+	m_explosion.SetFrameSize(sf::Vector2i(256, 256));
+	m_explosion.SetNumFrames(16);
+	m_explosion.SetDuration(sf::seconds(1));
+
 	Utility::CentreOrigin(m_sprite);
+	Utility::CentreOrigin(m_explosion);
 
 	m_fire_command.category = static_cast<int>(ReceiverCategories::kScene);
 	m_fire_command.action = [this, &textures](SceneNode& node, sf::Time dt)
@@ -224,15 +231,16 @@ sf::FloatRect Aircraft::GetBoundingRect() const
 
 bool Aircraft::IsMarkedForRemoval() const
 {
-	return m_is_marked_for_removal;
+	return IsDestroyed() && (m_explosion.IsFinished() || !m_show_explosion);
 }
 
 void Aircraft::CheckPickupDrop(CommandQueue& commands)
 {
-	if (!IsAllied() && Utility::RandomInt(3) == 0)
+	if (!IsAllied() && Utility::RandomInt(3) == 0 && !m_spawned_pickup)
 	{
 		commands.Push(m_drop_pickup_command);
 	}
+	m_spawned_pickup = true;
 }
 
 void Aircraft::CreatePickup(SceneNode& node, const TextureHolder& textures) const
@@ -247,15 +255,23 @@ void Aircraft::CreatePickup(SceneNode& node, const TextureHolder& textures) cons
 
 void Aircraft::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
 {
-	target.draw(m_sprite, states);
+	if (IsDestroyed() && m_show_explosion)
+	{
+		target.draw(m_explosion, states);
+	}
+	else
+	{
+		target.draw(m_sprite, states);
+	}
 }
 
 void Aircraft::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 {
+	UpdateTexts();
 	if (IsDestroyed())
 	{
 		CheckPickupDrop(commands);
-		m_is_marked_for_removal = true;
+		m_explosion.Update(dt);
 		return;
 	}
 	//Check if bullets or missiles are fired
@@ -263,7 +279,7 @@ void Aircraft::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 	// Update enemy movement pattern; apply velocity
 	UpdateMovementPattern(dt);
 	Entity::UpdateCurrent(dt, commands);
-	UpdateTexts();
+	
 }
 
 void Aircraft::CheckProjectileLaunch(sf::Time dt, CommandQueue& commands)
@@ -299,4 +315,10 @@ void Aircraft::CheckProjectileLaunch(sf::Time dt, CommandQueue& commands)
 bool Aircraft::IsAllied() const
 {
 	return m_type == AircraftType::kEagle;
+}
+
+void Aircraft::Remove()
+{
+	Entity::Remove();
+	m_show_explosion = false;
 }
