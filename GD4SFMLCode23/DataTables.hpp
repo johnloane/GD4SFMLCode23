@@ -25,6 +25,7 @@ struct AircraftData
 	sf::IntRect m_texture_rect;
 	sf::Time m_fire_interval;
 	std::vector<Direction> m_directions;
+	bool m_has_roll_animation;
 };
 
 struct ProjectileData
