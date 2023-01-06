@@ -2,10 +2,15 @@
 #include <functional>
 #include "Component.hpp"
 #include "ResourceIdentifiers.hpp"
+#include "SoundPlayer.hpp"
 #include <memory>
 #include <string>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Text.hpp>
+
+#include "ButtonType.hpp"
+#include "SoundPlayer.hpp"
+#include "State.hpp"
 
 namespace GUI
 {
@@ -16,7 +21,7 @@ namespace GUI
 		typedef std::function<void()> Callback;
 
 	public:
-		Button(const FontHolder& fonts, const TextureHolder& textures);
+		Button(State::Context context);
 		void SetCallback(Callback callback);
 		void SetText(const std::string& text);
 		void SetToggle(bool flag);
@@ -30,15 +35,14 @@ namespace GUI
 
 	private:
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+		void ChangeTexture(ButtonType buttonType);
 
 	private:
 		Callback m_callback;
-		const sf::Texture& m_normal_texture;
-		const sf::Texture& m_selected_texture;
-		const sf::Texture& m_pressed_texture;
 		sf::Sprite m_sprite;
 		sf::Text m_text;
 		bool m_is_toggle;
+		SoundPlayer& m_sounds;
 	};
 }
 

@@ -9,6 +9,7 @@
 #include "StateStack.hpp"
 
 #include "MusicPlayer.hpp"
+#include "SoundPlayer.hpp"
 
 class Application
 {
@@ -33,5 +34,6 @@ private:
 	static const sf::Time kTimePerFrame;
 
 	MusicPlayer m_music;
+	SoundPlayer m_sound;
 };
 

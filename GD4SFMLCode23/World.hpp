@@ -17,13 +17,14 @@
 #include "CommandQueue.hpp"
 
 #include "BloomEffect.hpp"
+#include "SoundPlayer.hpp"
 
 
 
 class World : private sf::NonCopyable
 {
 public:
-	explicit World(sf::RenderTarget& window, FontHolder& font);
+	explicit World(sf::RenderTarget& window, FontHolder& font, SoundPlayer& sounds);
 	void Update(sf::Time dt);
 	void Draw();
 	CommandQueue& GetCommandQueue();
@@ -48,6 +49,8 @@ private:
 
 	void HandleCollisions();
 
+	void UpdateSounds();
+
 private:
 	struct SpawnPoint
 	{
@@ -66,6 +69,7 @@ private:
 	sf::View m_camera;
 	TextureHolder m_textures;
 	FontHolder& m_fonts;
+	SoundPlayer& m_sounds;
 	SceneNode m_scenegraph;
 	std::array<SceneNode*, static_cast<int>(Layers::kLayerCount)> m_scene_layers;
 
