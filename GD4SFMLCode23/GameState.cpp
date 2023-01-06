@@ -6,6 +6,8 @@ GameState::GameState(StateStack& stack, Context context)
     , m_world(*context.window, *context.fonts)
     , m_player(*context.player)
 {
+    // Play game theme
+    context.music->Play(MusicThemes::kMissionTheme);
 }
 
 void GameState::Draw()
