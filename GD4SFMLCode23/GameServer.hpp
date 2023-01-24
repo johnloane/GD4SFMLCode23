@@ -2,6 +2,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/System/Clock.hpp>
@@ -23,7 +24,7 @@ private:
 		RemotePeer();
 		sf::TcpSocket m_socket;
 		sf::Time m_last_packet_time;
-		std::vector<sf::Int32> m_aircraft_identifier;
+		std::vector<sf::Int32> m_aircraft_identifiers;
 		bool m_ready;
 		bool m_timed_out;
 	};
@@ -46,6 +47,38 @@ private:
 
 	void HandleIncomingPackets();
 	void HandleIncomingPacket(sf::Packet& packet, RemotePeer& receiving_peer, bool& detected_timeout);
+
+	void HandleIncomingConnections();
+	void HandleDisconnections();
+
+	void InformWorldState(sf::TcpSocket& socket);
+	void BroadcastMessage(const std::string& message);
+	void SendToAll(sf::Packet& packet);
+	void UpdateClientState();
+
+private:
+	sf::Thread m_thread;
+	sf::Clock m_clock;
+	sf::TcpListener m_listener_socket;
+	bool m_listening_state;
+	sf::Time m_client_timeout;
+
+	std::size_t m_max_connected_players;
+	std::size_t m_connected_players;
+
+	float m_world_height;
+	sf::FloatRect m_battlefield_rect;
+	float m_battlefield_scrollspeed;
+
+	std::size_t m_aircraft_count;
+	std::map<sf::Int32, AircraftInfo> m_aircraft_info;
+
+	std::vector<PeerPtr> m_peers;
+	sf::Int32 m_aircraft_identifer_counter;
+	bool m_waiting_thread_end;
+
+	sf::Time m_last_spawn_time;
+	sf::Time m_time_fornext_spawn;
 
 };
 

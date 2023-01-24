@@ -27,7 +27,7 @@ namespace Client
 	enum class PacketType
 	{
 		kPlayerEvent,
-		kPlayerRealTimeChange,
+		kPlayerRealtimeChange,
 		kRequestCoopPartner,
 		kPositionUpdate,
 		kGameEvent,
