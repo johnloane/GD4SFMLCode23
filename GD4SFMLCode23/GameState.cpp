@@ -1,5 +1,6 @@
 #include "GameState.hpp"
 #include "Player.hpp"
+#include <iostream>
 
 GameState::GameState(StateStack& stack, Context context)
     : State(stack, context)
