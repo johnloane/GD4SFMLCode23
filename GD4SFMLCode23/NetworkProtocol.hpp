@@ -34,3 +34,27 @@ namespace Client
 		kQuit
 	};
 }
+
+namespace GameActions
+{
+	enum class Type
+	{
+		kEnemyExplode
+	};
+
+	struct Action
+	{
+		Action()
+		{
+
+		}
+
+		Action(Type type, sf::Vector2f position) :type(type), position(position)
+		{
+
+		}
+
+		Type type;
+		sf::Vector2f position;
+	};
+}
