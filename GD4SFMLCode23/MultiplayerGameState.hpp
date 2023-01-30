@@ -28,7 +28,7 @@ private:
 	sf::RenderWindow& m_window;
 	TextureHolder& m_texture_holder;
 
-	std::map<int, PlayerPtr> m_player;
+	std::map<int, PlayerPtr> m_players;
 	std::vector<sf::Int32> m_local_player_identifiers;
 	sf::TcpSocket m_socket;
 	bool m_connected;
@@ -37,7 +37,7 @@ private:
 
 	std::vector<std::string> m_broadcasts;
 	sf::Text m_broadcast_text;
-	sf::Time m_broad_cast_elapsed_time;
+	sf::Time m_broadcast_elapsed_time;
 
 	sf::Text m_player_invitation_text;
 	sf::Time m_player_invitation_time;
@@ -50,6 +50,6 @@ private:
 	bool m_host;
 	bool m_game_started;
 	sf::Time m_client_timeout;
-	sf::Time m_time_last_packet;
+	sf::Time m_time_since_last_packet;
 };
 
