@@ -8,15 +8,18 @@
 
 #include <fstream>
 #include "PickupType.hpp"
+#include <iostream>
 
 sf::IpAddress GetAddressFromFile()
 {
-	//Try to open existing file
-	std::ifstream input_file("ip.txt");
-	std::string ip_address;
-	if (input_file >> ip_address)
 	{
-		return ip_address;
+		//Try to open existing file
+		std::ifstream input_file("ip.txt");
+		std::string ip_address;
+		if (input_file >> ip_address)
+		{
+			return ip_address;
+		}
 	}
 
 	//If the open/read failed, create a new file
@@ -29,7 +32,7 @@ sf::IpAddress GetAddressFromFile()
 
 MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, bool is_host)
 	:State(stack, context)
-	, m_world(*context.window, *context.fonts, *context.sounds, is_host)
+	, m_world(*context.window, *context.fonts, *context.sounds, true)
 	, m_window(*context.window)
 	, m_texture_holder(*context.textures)
 	, m_connected(false)
@@ -39,21 +42,21 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 	, m_host(is_host)
 	, m_game_started(false)
 	, m_client_timeout(sf::seconds(2.f))
-	, m_time_last_packet(sf::Time::Zero)
+	, m_time_since_last_packet(sf::seconds(0.f))
 {
 	m_broadcast_text.setFont(context.fonts->Get(Font::kMain));
 	m_broadcast_text.setPosition(1024.f/2, 100.f);
 	
 	m_player_invitation_text.setFont(context.fonts->Get(Font::kMain));
 	m_player_invitation_text.setCharacterSize(20);
-	m_player_invitation_text.setColor(sf::Color::White);
+	m_player_invitation_text.setFillColor(sf::Color::White);
 	m_player_invitation_text.setString("Press Enter to spawn player 2");
 	m_player_invitation_text.setPosition(1000 - m_player_invitation_text.getLocalBounds().width, 760 - m_player_invitation_text.getLocalBounds().height);
 	
 	//Use this for "Attempt to connect" and "Failed to connect" messages
 	m_failed_connection_text.setFont(context.fonts->Get(Font::kMain));
 	m_failed_connection_text.setCharacterSize(35);
-	m_failed_connection_text.setColor(sf::Color::White);
+	m_failed_connection_text.setFillColor(sf::Color::White);
 	m_failed_connection_text.setString("Attempting to connect...");
 	Utility::CentreOrigin(m_failed_connection_text);
 	m_failed_connection_text.setPosition(m_window.getSize().x/2.f, m_window.getSize().y/2.f);
@@ -78,7 +81,7 @@ MultiplayerGameState::MultiplayerGameState(StateStack& stack, Context context, b
 		ip = GetAddressFromFile();
 	}
 
-	if (m_socket.connect(ip, SERVER_PORT, sf::seconds(5.f)) != sf::Socket::Done)
+	if (m_socket.connect(ip, SERVER_PORT, sf::seconds(5.f)) == sf::TcpSocket::Done)
 	{
 		m_connected = true;
 	}
@@ -210,7 +213,7 @@ bool MultiplayerGameState::Update(sf::Time dt)
 		while (m_world.PollGameAction(game_action))
 		{
 			sf::Packet packet;
-			packet << static_cast<sf::Int32>(Client::PacketType::GameEvent);
+			packet << static_cast<sf::Int32>(Client::PacketType::kGameEvent);
 			packet << static_cast<sf::Int32>(game_action.type);
 			packet << game_action.position.x;
 			packet << game_action.position.y;
@@ -222,7 +225,7 @@ bool MultiplayerGameState::Update(sf::Time dt)
 		if (m_tick_clock.getElapsedTime() > sf::seconds(1.f / 20.f))
 		{
 			sf::Packet position_update_packet;
-			position_update_packet << static_cast<sf::Int32>(Client::PacketType::PositionUpdate);
+			position_update_packet << static_cast<sf::Int32>(Client::PacketType::kPositionUpdate);
 			position_update_packet << static_cast<sf::Int32>(m_local_player_identifiers.size());
 
 			for (sf::Int32 identifier : m_local_player_identifiers)
@@ -264,7 +267,7 @@ bool MultiplayerGameState::HandleEvent(const sf::Event& event)
 		if (event.key.code == sf::Keyboard::Return && m_local_player_identifiers.size() == 1)
 		{
 			sf::Packet packet;
-			packet << static_cast<sf::Int32>(Client::PacketType::RequestCoopPartner);
+			packet << static_cast<sf::Int32>(Client::PacketType::kRequestCoopPartner);
 			m_socket.send(packet);
 		}
 		//If escape is pressed, show the pause screen
@@ -296,7 +299,7 @@ void MultiplayerGameState::OnDestroy()
 	{
 		//Inform server this client is dying
 		sf::Packet packet;
-		packet << static_cast<sf::Int32>(Client::PacketType::Quit);
+		packet << static_cast<sf::Int32>(Client::PacketType::kQuit);
 		m_socket.send(packet);
 	}
 }
@@ -339,7 +342,7 @@ void MultiplayerGameState::HandlePacket(sf::Int32 packet_type, sf::Packet& packe
 	switch (static_cast<Server::PacketType>(packet_type))
 	{
 		//Send message to all Clients
-	case Server::PacketType::BroadcastMessage:
+	case Server::PacketType::kBroadcastMessage:
 	{
 		std::string message;
 		packet >> message;
@@ -356,7 +359,7 @@ void MultiplayerGameState::HandlePacket(sf::Int32 packet_type, sf::Packet& packe
 	break;
 
 	//Sent by the server to spawn player 1 airplane on connect
-	case Server::PacketType::SpawnSelf:
+	case Server::PacketType::kSpawnSelf:
 	{
 		sf::Int32 aircraft_identifier;
 		sf::Vector2f aircraft_position;
@@ -369,7 +372,7 @@ void MultiplayerGameState::HandlePacket(sf::Int32 packet_type, sf::Packet& packe
 	}
 	break;
 
-	case Server::PacketType::PlayerConnect:
+	case Server::PacketType::kPlayerConnect:
 	{
 		sf::Int32 aircraft_identifier;
 		sf::Vector2f aircraft_position;
@@ -381,7 +384,7 @@ void MultiplayerGameState::HandlePacket(sf::Int32 packet_type, sf::Packet& packe
 	}
 	break;
 
-	case Server::PacketType::PlayerDisconnect:
+	case Server::PacketType::kPlayerDisconnect:
 	{
 		sf::Int32 aircraft_identifier;
 		packet >> aircraft_identifier;
@@ -390,7 +393,7 @@ void MultiplayerGameState::HandlePacket(sf::Int32 packet_type, sf::Packet& packe
 	}
 	break;
 
-	case Server::PacketType::InitialState:
+	case Server::PacketType::kInitialState:
 	{
 		sf::Int32 aircraft_count;
 		float world_height, current_scroll;
@@ -418,7 +421,7 @@ void MultiplayerGameState::HandlePacket(sf::Int32 packet_type, sf::Packet& packe
 	}
 	break;
 
-	case Server::PacketType::AcceptCoopPartner:
+	case Server::PacketType::kAcceptCoopPartner:
 	{
 		sf::Int32 aircraft_identifier;
 		packet >> aircraft_identifier;
@@ -430,7 +433,7 @@ void MultiplayerGameState::HandlePacket(sf::Int32 packet_type, sf::Packet& packe
 	break;
 
 	//Player event, like missile fired occurs
-	case Server::PacketType::PlayerEvent:
+	case Server::PacketType::kPlayerEvent:
 	{
 		sf::Int32 aircraft_identifier;
 		sf::Int32 action;
@@ -439,13 +442,13 @@ void MultiplayerGameState::HandlePacket(sf::Int32 packet_type, sf::Packet& packe
 		auto itr = m_players.find(aircraft_identifier);
 		if (itr != m_players.end())
 		{
-			itr->second->HandleNetworkEvent(static_cast<PlayerAction>(action), m_world.GetCommandQueue());
+			itr->second->HandleNetworkEvent(static_cast<Action>(action), m_world.GetCommandQueue());
 		}
 	}
 	break;
 
 	//Player's movement or fire keyboard state changes
-	case Server::PacketType::PlayerRealtimeChange:
+	case Server::PacketType::kPlayerRealtimeChange:
 	{
 		sf::Int32 aircraft_identifier;
 		sf::Int32 action;
@@ -455,13 +458,13 @@ void MultiplayerGameState::HandlePacket(sf::Int32 packet_type, sf::Packet& packe
 		auto itr = m_players.find(aircraft_identifier);
 		if (itr != m_players.end())
 		{
-			itr->second->HandleNetworkRealtimeChange(static_cast<PlayerAction>(action), action_enabled);
+			itr->second->HandleNetworkRealtimeChange(static_cast<Action>(action), action_enabled);
 		}
 	}
 	break;
 
 	//New Enemy to be created
-	case Server::PacketType::SpawnEnemy:
+	case Server::PacketType::kSpawnEnemy:
 	{
 		float height;
 		sf::Int32 type;
@@ -474,24 +477,23 @@ void MultiplayerGameState::HandlePacket(sf::Int32 packet_type, sf::Packet& packe
 	break;
 
 	//Mission Successfully completed
-	case Server::PacketType::MissionSuccess:
+	case Server::PacketType::kMissionSuccess:
 	{
 		RequestStackPush(StateID::kMissionSuccess);
 	}
 	break;
 
 	//Pickup created
-	case Server::PacketType::SpawnPickup:
+	case Server::PacketType::kSpawnPickup:
 	{
 		sf::Int32 type;
 		sf::Vector2f position;
 		packet >> type >> position.x >> position.y;
-		std::cout << "Spawning pickup type " << type << std::endl;
 		m_world.CreatePickup(position, static_cast<PickupType>(type));
 	}
 	break;
 
-	case Server::PacketType::UpdateClientState:
+	case Server::PacketType::kUpdateClientState:
 	{
 		float current_world_position;
 		sf::Int32 aircraft_count;

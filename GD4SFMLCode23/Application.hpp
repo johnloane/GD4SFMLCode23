@@ -3,6 +3,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/System/Time.hpp>
 
+#include "KeyBinding.hpp"
 #include "Player.hpp"
 #include "ResourceHolder.hpp"
 #include "ResourceIdentifiers.hpp"
@@ -25,7 +26,6 @@ private:
 
 private:
 	sf::RenderWindow m_window;
-	Player m_player;
 
 	TextureHolder m_textures;
 	FontHolder m_fonts;
@@ -35,5 +35,8 @@ private:
 
 	MusicPlayer m_music;
 	SoundPlayer m_sound;
+
+	KeyBinding m_key_binding_1;
+	KeyBinding m_key_binding_2;
 };
 

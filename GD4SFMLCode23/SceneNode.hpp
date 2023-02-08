@@ -5,12 +5,12 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include "CommandQueue.hpp"
 #include "ReceiverCategories.hpp"
+#include "Command.hpp"
 
 #include <memory>
 #include <vector>
 #include <set>
 
-class Command;
 
 
 class SceneNode : public sf::Transformable, public sf::Drawable, private sf::NonCopyable

@@ -110,7 +110,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)/SFML-2.5.1-64/SFML-2.5.1/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-system-d.lib;sfml-window-d.lib;sfml-graphics-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-system-d.lib;sfml-window-d.lib;sfml-graphics-d.lib;sfml-audio-d.lib;sfml-network-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -145,11 +145,13 @@
     <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="GameServer.cpp" />
     <ClCompile Include="GameState.cpp" />
+    <ClCompile Include="KeyBinding.cpp" />
     <ClCompile Include="Label.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="MusicPlayer.cpp" />
     <ClCompile Include="MultiplayerGameState.cpp" />
+    <ClCompile Include="NetworkNode.cpp" />
     <ClCompile Include="ParticleNode.cpp" />
     <ClCompile Include="PauseState.cpp" />
     <ClCompile Include="Pickup.cpp" />
@@ -190,6 +192,7 @@
     <ClInclude Include="GameServer.hpp" />
     <ClInclude Include="GameState.hpp" />
     <ClInclude Include="InputNotes.hpp" />
+    <ClInclude Include="KeyBinding.hpp" />
     <ClInclude Include="Label.hpp" />
     <ClInclude Include="Layers.hpp" />
     <ClInclude Include="MenuOptions.hpp" />
@@ -198,6 +201,7 @@
     <ClInclude Include="MusicPlayer.hpp" />
     <ClInclude Include="MusicThemes.hpp" />
     <ClInclude Include="MultiplayerGameState.hpp" />
+    <ClInclude Include="NetworkNode.hpp" />
     <ClInclude Include="NetworkProtocol.hpp" />
     <ClInclude Include="Particle.hpp" />
     <ClInclude Include="ParticleNode.hpp" />

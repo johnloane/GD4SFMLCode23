@@ -2,6 +2,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <SFML/Config.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
@@ -14,7 +15,7 @@ class GameServer
 public:
 	explicit GameServer(sf::Vector2f battlefield_size);
 	~GameServer();
-	void NotifyPlayerSpawn(sf::Int32 aircarft_identifer);
+	void NotifyPlayerSpawn(sf::Int32 aircraft_identifer);
 	void NotifyPlayerRealtimeChange(sf::Int32 aircraft_identifer, sf::Int32 action, bool action_enabled);
 	void NotifyPlayerEvent(sf::Int32 aircraft_identifier, sf::Int32 action);
 
@@ -78,7 +79,7 @@ private:
 	bool m_waiting_thread_end;
 
 	sf::Time m_last_spawn_time;
-	sf::Time m_time_fornext_spawn;
+	sf::Time m_time_for_next_spawn;
 
 };
 

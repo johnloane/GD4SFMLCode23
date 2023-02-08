@@ -4,9 +4,11 @@
 
 GameState::GameState(StateStack& stack, Context context)
     : State(stack, context)
-    , m_world(*context.window, *context.fonts, *context.sounds)
-    , m_player(*context.player)
+    , m_world(*context.window, *context.fonts, *context.sounds, false)
+    , m_player(nullptr, 1, context.keys1)
 {
+    m_world.AddAircraft(1);
+    m_player.SetMissionStatus(MissionStatus::kMissionRunning);
     // Play game theme
     context.music->Play(MusicThemes::kMissionTheme);
 }
@@ -27,7 +29,7 @@ bool GameState::Update(sf::Time dt)
     else if (m_world.HasPlayerReachedEnd())
     {
         m_player.SetMissionStatus(MissionStatus::kMissionSuccess);
-        RequestStackPush(StateID::kGameOver);
+        RequestStackPush(StateID::kMissionSuccess);
     }
     CommandQueue& commands = m_world.GetCommandQueue();
     m_player.HandleRealtimeInput(commands);

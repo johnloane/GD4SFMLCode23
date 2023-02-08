@@ -37,18 +37,14 @@ namespace Client
 
 namespace GameActions
 {
-	enum class Type
+	enum Type
 	{
 		kEnemyExplode
 	};
 
 	struct Action
 	{
-		Action()
-		{
-
-		}
-
+		Action() = default;
 		Action(Type type, sf::Vector2f position) :type(type), position(position)
 		{
 
